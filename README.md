@@ -42,16 +42,11 @@ rag_intent_gateway/
 │   └── services/
 │       ├── __init__.py
 │       └── llm_service.py      # LLM 调用服务
-├── tests/
-│   ├── __init__.py
-│   ├── test_api.py             # API 测试
-│   ├── test_llm_service.py     # LLM 服务测试
-│   └── test_models.py          # 数据模型测试
+├── tests/                      # 测试文件
+├── main.py                     # FastAPI 启动入口
+├── main_mcp.py                 # MCP 服务启动入口
 ├── .env.example                # 环境变量示例
-├── .gitignore
 ├── requirements.txt            # Python 依赖
-├── pyproject.toml              # 项目配置
-├── plan.md                     # 实施方案
 └── README.md                   # 本文档
 ```
 
@@ -96,24 +91,53 @@ OPENAI_MODEL=gpt-4o
 
 ### 4. 运行应用
 
+#### 方式 A: 运行 FastAPI 服务
+
 ```bash
 # 方式一：使用 Python 直接运行（推荐）
 python main.py
 
-# 方式二：使用启动脚本
-./start.sh
-
-# 方式三：使用 uvicorn
+# 方式二：使用 uvicorn
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 应用将在 `http://localhost:8000` 启动。
+
+#### 方式 B: 运行 MCP 服务
+
+MCP (Model Context Protocol) 服务提供标准的工具接口，可用于 Dify 等平台集成：
+
+```bash
+# 方式一：直接运行
+python main_mcp.py
+
+# 方式二：自定义主机和端口
+MCP_HOST=0.0.0.0 MCP_PORT=8022 python main_mcp.py
+```
+
+MCP 服务将在 `http://localhost:8022/mcp` 启动。
+
+**MCP 配置：**
+
+| 环境变量 | 默认值 | 说明 |
+|---------|--------|------|
+| `MCP_HOST` | `0.0.0.0` | MCP 服务主机 |
+| `MCP_PORT` | `8022` | MCP 服务端口 |
+
+**MCP 工具：**
+
+1. **analyze_intent**: 分析用户查询意图并执行查询重写
+   - 参数: `query` (查询文本), `history` (对话历史，可选)
+   - 返回: 意图类型、独立查询、子查询、扩展查询
+
+2. **health_check**: 检查服务健康状态
 
 ### 5. 访问文档
 
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **健康检查**: http://localhost:8000/health
+- **MCP 端点**: http://localhost:8022/mcp
 
 ## 📖 API 使用指南
 
